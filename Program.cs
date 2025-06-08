@@ -2,48 +2,57 @@ using Microsoft.EntityFrameworkCore;
 using DashboardService.API.Data;
 using DashboardService.API.Services;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace DashboardService.API;
 
-// Add services to the container.
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-
-// Add CORS
-builder.Services.AddCors(options =>
+public class Program
 {
-    options.AddPolicy("AllowAll", builder =>
+    public static void Main(string[] args)
     {
-        builder.WithOrigins(
-            "http://localhost:5173", // Local development
-            "https://gray-coast-07cd65903.1.azurestaticapps.net" // Azure Static Web App
-        )
-        .AllowAnyMethod()
-        .AllowAnyHeader()
-        .AllowCredentials();
-    });
-});
+        var builder = WebApplication.CreateBuilder(args);
 
-// Add DbContext
-builder.Services.AddDbContext<DashboardServiceDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+        // Add services to the container.
+        builder.Services.AddControllers();
+        builder.Services.AddEndpointsApiExplorer();
 
-// Add HttpClient
-builder.Services.AddHttpClient();
+        // Add CORS
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", builder =>
+            {
+                builder.WithOrigins(
+                    "http://localhost:5173", // Local development
+                    "https://ashy-bay-0b0f05003.6.azurestaticapps.net", // New Azure Static Web App
+                    "https://dashboardshram-g7fha0caa6ambehn.swedencentral-01.azurewebsites.net" // DashboardService
+                )
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+            });
+        });
 
-// Register services
-builder.Services.AddScoped<IDashboardService, DashboardService.API.Services.DashboardService>();
+        // Add DbContext
+        builder.Services.AddDbContext<DashboardServiceDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-var app = builder.Build();
+        // Add HttpClient
+        builder.Services.AddHttpClient();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-}
+        // Register services
+        builder.Services.AddScoped<IDashboardService, DashboardService.API.Services.DashboardService>();
 
-app.UseHttpsRedirection();
-app.UseCors("AllowAll");
-app.UseAuthorization();
-app.MapControllers();
+        var app = builder.Build();
 
-app.Run(); 
+        // Configure the HTTP request pipeline.
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+
+        app.UseHttpsRedirection();
+        app.UseCors("AllowAll");
+        app.UseAuthorization();
+        app.MapControllers();
+
+        app.Run();
+    }
+} 
